@@ -7,9 +7,13 @@ import {
 } from "../../components/Form";
 import useForm from "../../hooks/useForm";
 import { escapeRegex } from "../../utils/escapeRegex";
-
-// TODO: Move static texts into constants
-// TODO: Move regex into constants, can be used on backend aswell
+import { NAME_REGEX, PASSWORD_REGEX } from "../../constants/regex";
+import {
+  NAME_ERROR_MESSAGE,
+  PASSWORD_ERROR_MESSAGE,
+  CONFIRM_PASSWORD_ERROR_MESSAGE,
+  EMAIL_ERROR_MESSAGE,
+} from "../../constants/errors";
 
 const SignUp = () => {
   const { inputs, handleChange, handleError } = useForm({
@@ -19,10 +23,26 @@ const SignUp = () => {
     password: "",
     confirmPassword: "",
   });
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    console.log(inputs);
+    const response = await fetch("/api/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({
+        firstName: inputs.firstName.value,
+        lastName: inputs.lastName.value,
+        email: inputs.email.value,
+        password: inputs.password.value,
+      }),
+    });
+
+    const data = await response.json();
+
+    console.log(data);
+
+    if (data.error) {
+      handleError(data.error);
+    }
   };
 
   return (
@@ -34,8 +54,8 @@ const SignUp = () => {
           type="text"
           label="First Name"
           value={inputs.firstName.value}
-          pattern="^[\w'\-,.][^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{2,}$"
-          errorMessage="First Name should be atleast 3 characters long"
+          pattern={NAME_REGEX}
+          errorMessage={NAME_ERROR_MESSAGE}
           onChange={handleChange}
           placeholder="eg. John"
           error={inputs.firstName.error}
@@ -46,8 +66,8 @@ const SignUp = () => {
           type="text"
           label="Last Name"
           value={inputs.lastName.value}
-          pattern="^[\w'\-,.][^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]]{2,}$"
-          errorMessage="Last Name should be atleast 3 characters long"
+          pattern={NAME_REGEX}
+          errorMessage={NAME_ERROR_MESSAGE}
           onChange={handleChange}
           placeholder="eg. Smith"
           error={inputs.lastName.error}
@@ -58,7 +78,7 @@ const SignUp = () => {
           type="email"
           label="Email"
           value={inputs.email.value}
-          errorMessage="Please provide a valid email."
+          errorMessage={EMAIL_ERROR_MESSAGE}
           onChange={handleChange}
           placeholder="eg. johnsmith@example.com"
           error={inputs.email.error}
@@ -69,8 +89,8 @@ const SignUp = () => {
           type="password"
           label="Password"
           value={inputs.password.value}
-          pattern="^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
-          errorMessage="Password must be at least 8 characters long, include both lower and upper case characters and at least one number and symbol"
+          pattern={PASSWORD_REGEX}
+          errorMessage={PASSWORD_ERROR_MESSAGE}
           onChange={handleChange}
           error={inputs.password.error}
           required={true}
@@ -81,7 +101,7 @@ const SignUp = () => {
           label="Confirm Password"
           value={inputs.confirmPassword.value}
           pattern={escapeRegex(inputs.password.value)}
-          errorMessage="Password don't match"
+          errorMessage={CONFIRM_PASSWORD_ERROR_MESSAGE}
           onChange={handleChange}
           error={inputs.confirmPassword.error}
           required={true}
