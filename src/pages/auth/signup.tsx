@@ -14,8 +14,15 @@ import {
   CONFIRM_PASSWORD_ERROR_MESSAGE,
   EMAIL_ERROR_MESSAGE,
 } from "../../constants/errors";
+import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
 
 const SignUp = () => {
+  const router = useRouter();
+  const { data: session } = useSession();
+
+  if (session) router.push("/");
+
   const { inputs, handleChange, handleError } = useForm({
     firstName: "",
     lastName: "",
@@ -38,11 +45,11 @@ const SignUp = () => {
 
     const data = await response.json();
 
-    console.log(data);
-
     if (data.error) {
-      handleError(data.error);
+      return handleError(data.error);
     }
+
+    router.push("/auth/signin");
   };
 
   return (

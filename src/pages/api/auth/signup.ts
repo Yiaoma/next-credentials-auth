@@ -64,17 +64,27 @@ const SignUp = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   const hashedPassword = await argon2.hash(password);
+
+  // Capitalize first letters??
+
   const name = `${firstName.trim()} ${lastName.trim()}`;
 
-  const user = await prisma.user.create({
-    data: {
-      name,
-      email,
-      password: hashedPassword,
-    },
-  });
+  try {
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+      },
+    });
 
-  return res.status(200).json({ user, error: null });
+    return res.status(200).json({ user, error: null });
+  } catch (error) {
+    return res.json({
+      user: null,
+      error: { field: "email", message: "Email is already taken" },
+    });
+  }
 };
 
 export default SignUp;

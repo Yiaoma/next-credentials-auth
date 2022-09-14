@@ -27,11 +27,7 @@ export const StyledInput = styled.input`
   }
 
   // Need to check if you can cahin both selectors
-  &[data-error="true"] {
-    border-color: red;
-    animation: shake 0.2s;
-  }
-
+  &[data-error="true"],
   &:invalid[data-blurred="true"] {
     border-color: red;
     animation: shake 0.2s;
@@ -57,11 +53,7 @@ export const StyledError = styled.span`
   max-width: 250px;
   display: none;
 
-  // Need to check if you can chain both selectors
-  ${StyledInput}[data-error="true"] ~ & {
-    display: block;
-  }
-
+  ${StyledInput}[data-error="true"] ~ &,
   ${StyledInput}:invalid[data-blurred="true"] ~ & {
     display: block;
   }
